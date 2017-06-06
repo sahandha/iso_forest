@@ -1,4 +1,5 @@
 "isolated forest functions"
+
 __author__ = 'Matias Carrasco Kind'
 import numpy as np
 import random as rn
@@ -9,7 +10,7 @@ try:
     import igraph as ig
 except:
     warnings.warn("No igraph interface for plotting trees")
-    
+
 
 def c_factor(n) :
     return 2.0*(np.log(n-1)+0.5772156649) - (2.0*(n-1.)/(n*1.0))
@@ -24,7 +25,7 @@ class iForest(object):
         self.limit = limit
         if limit is None:
             self.limit = int(np.ceil(np.log2(self.sample)))
-        self.c = c_factor(self.sample)        
+        self.c = c_factor(self.sample)
         for i in range(self.ntrees):
             ix = rn.sample(range(self.nobjs), self.sample)
             X_p = X[ix]
@@ -49,8 +50,8 @@ class iForest(object):
             S[j] = 2.0**(-1.0*path/self.c)
         return S
 
-        
-        
+
+
 
 class Node(object):
     def __init__(self, X, q, p, e, left, right, node_type = '' ):
@@ -82,7 +83,7 @@ class iTree(object):
         self.q = None
         self.exnodes = 0
         self.root = self.make_tree(X,e,l)
-        
+
 
     def make_tree(self,X,e,l):
         self.e = e
@@ -109,15 +110,12 @@ class iTree(object):
 
 
 
-
-        
-            
 class PathFactor(object):
     def __init__(self,x,itree):
-        self.path_list=[]        
+        self.path_list=[]
         self.x = x
         self.e = 0
-        self.path = self.find_path(itree.root)
+        self.path  = self.find_path (itree.root)
 
     def find_path(self,T):
         if T.ntype == 'exNode':
@@ -134,6 +132,43 @@ class PathFactor(object):
             else:
                 self.path_list.append('R')
                 return self.find_path(T.right)
+
+
+
+
+class PathFactor2(object):
+    def __init__(self,X,itree):
+        self.path_list=[]
+        self.X = X
+        self.e = 0
+        self.paths = self.Find_Paths(itree.root)
+
+    def find_path(self,T,x):
+        if T.ntype == 'exNode':
+            if T.size == 1:
+                r = self.e
+                self.e = 0
+                return r
+            else:
+                self.e = self.e + c_factor(T.size)
+                r = self.e
+                self.e = 0
+                return r
+        else:
+            a = T.q
+            self.e += 1
+            if x[a] < T.p:
+                self.path_list.append('L')
+                return self.find_path(T.left,x)
+            else:
+                self.path_list.append('R')
+                return self.find_path(T.right,x)
+
+    def Find_Paths(self,T):
+        return np.array([self.find_path(T,x)*(1.0) for x in self.X])
+
+
+
 
 def all_branches(node, current=[], branches = None):
     current = current[:node.e]
