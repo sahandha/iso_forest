@@ -6,17 +6,17 @@ import random as rn
 import os
 import warnings
 from version import __version__
-try:
-    import igraph as ig
-except:
-    warnings.warn("No igraph interface for plotting trees")
+#try:
+#    import igraph as ig
+#except:
+#    warnings.warn("No igraph interface for plotting trees")
 
 
 def c_factor(n) :
     return 2.0*(np.log(n-1)+0.5772156649) - (2.0*(n-1.)/(n*1.0))
 
 class iForest(object):
-    def __init__(self,X, ntrees,  sample_size, limit=None):
+    def __init__(self, X, ntrees,  sample_size, limit=None):
         self.ntrees = ntrees
         self.X = X
         self.nobjs = len(X)
@@ -132,8 +132,6 @@ class PathFactor(object):
             else:
                 self.path_list.append('R')
                 return self.find_path(T.right)
-
-
 
 
 class PathFactor2(object):
